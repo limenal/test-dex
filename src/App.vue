@@ -40,6 +40,7 @@
 
       </div>
       <div id="modal">
+      
         <div id="token-in-modal">
           <div>
             <p id="token-name">Test Token</p>
@@ -48,7 +49,12 @@
           </div>
 
           <div>
-            <p id="price">{{getCostBuy}} $</p>
+            <div v-if="isBuyModal">
+              <p id="price">{{getCostBuy}} $</p>
+            </div>
+            <div v-else>
+              <p id="price">{{getCostSell}} $</p>
+            </div>
             <p id="pool">{{currentReserve}} / {{reserveToken}} available</p>
           
           </div>
@@ -76,7 +82,7 @@
             <div class="input-group">
               <input type="button" value="-" class="button-minus" data-field="quantity" v-on:click="decreaseAmount">
               <input type="number" max="" v-model="amount" name="quantity" class="quantity-field" disabled>
-              <input type="button" value="+" class="button-plus" data-field="quantity" v-on:click="incAmount">
+              <input type="button" value="+" class="button-plus" data-field="quantity" v-on:click="incAmountSelling">
             </div>
             <button id="button-modal" v-on:click = "sellTokens">Sell</button>
           </div>
@@ -174,11 +180,32 @@ export default {
       if(this.amount == 0) return ''
       let newTokenReserve = Number(this.currentReserve) - Number(this.amount)
       
+      console.log(this.currentReserve)
+      console.log(this.amount)
+      console.log(this.invariant)
+      console.log(newTokenReserve)
       let newDAIReserve = Number(this.invariant) / newTokenReserve
+      console.log(newDAIReserve)
       let cost = newDAIReserve - Number(this.reserveDAI)  
-      
+      console.log(cost)
       return cost.toString()
       
+    },
+    getCostSell: function()
+    {
+      if(this.amount == 0) return ''
+      let newTokenReserve = Number(this.currentReserve) + Number(this.amount)
+      
+      console.log(this.currentReserve)
+      console.log(this.amount)
+      console.log(this.invariant)
+      console.log(newTokenReserve)
+      let newDAIReserve = Number(this.invariant) / newTokenReserve
+      console.log(newDAIReserve)
+      let cost = Number(this.reserveDAI) - newDAIReserve  
+      console.log(cost)
+      return cost.toString()
+
     },
     isModal: function()
     {
@@ -370,7 +397,15 @@ export default {
       }
       
     },
-
+    incAmountSelling()
+    {
+      if(Number(this.amount) < Number(this.balanceTTL))
+      {
+        let _amount = Number(this.amount)
+        this.amount = (_amount + 1).toString();
+        //this.getCost()
+      }
+    },
     decreaseAmount()
     {
       if(this.amount!=1)
@@ -407,13 +442,24 @@ export default {
       this.isSellModal = false;
       this.amount = "1"
     },
-    updateReserves(tokensBought)
+    async updateReserves(tokensBought)
     {
+      const provider = new ethers.providers.Web3Provider(window.ethereum)
+      let address = '0x7ED49bB36f915d327301B4CD4Cb90DAAf20d1B7F'
+      const swapContract = new ethers.Contract(address, TestSwap.abi, provider)
+      
       this.currentReserve -= parseInt(tokensBought)
+      let cur = await swapContract.getReserves()
+      this.reserveDAI = ethers.utils.formatUnits( cur[1].toString(), 18)
     },
-    updateReservesAfterSell(tokensSold)
+    async updateReservesAfterSell(tokensSold)
     {
+      const provider = new ethers.providers.Web3Provider(window.ethereum)
+      let address = '0x7ED49bB36f915d327301B4CD4Cb90DAAf20d1B7F'
+      const swapContract = new ethers.Contract(address, TestSwap.abi, provider)
       this.currentReserve += parseInt(tokensSold)
+      let cur = await swapContract.getReserves()
+      this.reserveDAI = ethers.utils.formatUnits( cur[1].toString(), 18)
     }
     
   }
