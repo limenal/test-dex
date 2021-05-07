@@ -1,0 +1,61 @@
+{
+  "name": "test-dex",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "serve": "vue-cli-service serve",
+    "build": "vue-cli-service build",
+    "lint": "vue-cli-service lint"
+  },
+  "dependencies": {
+    "@openzeppelin/contracts": "^4.0.0",
+    "@popperjs/core": "^2.9.2",
+    "@truffle/hdwallet-provider": "^1.3.0",
+    "bootstrap": "^5.0.0",
+    "chai": "^4.3.4",
+    "chai-as-promised": "^7.1.1",
+    "core-js": "^3.6.5",
+    "ethers": "^5.1.4",
+    "file-system": "^2.2.2",
+    "materialize-css": "^1.0.0-rc.2",
+    "truffle-hdwallet-provider": "^1.0.17",
+    "uikit": "^3.6.21-dev.64816a7b2",
+    "vue": "^2.6.11",
+    "vuikit": "^0.8.10"
+  },
+  "devDependencies": {
+    "@vue/cli-plugin-babel": "~4.5.0",
+    "@vue/cli-plugin-eslint": "~4.5.0",
+    "@vue/cli-service": "~4.5.0",
+    "babel-eslint": "^10.1.0",
+    "eslint": "^6.7.2",
+    "eslint-plugin-vue": "^6.2.2",
+    "vue-template-compiler": "^2.6.11"
+  },
+  "eslintConfig": {
+    "root": true,
+    "env": {
+      "node": true
+    },
+    "extends": [
+      "plugin:vue/essential",
+      "eslint:recommended"
+    ],
+    "parserOptions": {
+      "parser": "babel-eslint"
+    },
+    "rules": {}
+  },
+  "browserslist": [
+    "> 1%",
+    "last 2 versions",
+    "not dead"
+  ],
+  "description": "## Project setup ``` npm install ```",
+  "main": "babel.config.js",
+  "directories": {
+    "test": "test"
+  },
+  "author": "",
+  "license": "ISC"
+}
