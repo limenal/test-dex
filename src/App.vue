@@ -1,101 +1,128 @@
 <template>
 
   <div id="app">
-    <nav class = "#1e88e5 blue darken-1">
-      <div>
-        <p id = "account-address">Connected wallet: {{account}}</p>
-      </div>
-      <div class="nav-wrapper">
-        <a class="brand-logo center"></a>
-      </div>
-    </nav>
+    <div >
+      <nav class = "#1e88e5 blue darken-1">
+        <div>
+          <p id = "account-address">Connected wallet: {{account}}</p>
+        </div>
+        <div class="nav-wrapper">
+          <a class="brand-logo center"></a>
+        </div>
+      </nav>
     
-    <div id="token">
-      <div>
-        <p id="token-name">Test Token</p>
-        <p id="token-symbol">$TTL</p>
-      </div>
+      <div id="token">
+        <div>
+          <p id="token-name">Test Token</p>
+          <p id="token-symbol">$TTL</p>
+        </div>
 
-      <div>
-        <p id="price">{{getCostBuy}} $</p>
-        <p id="pool">{{currentReserve}} / {{reserveToken}} available</p>
+        <div>
+          <p id="price">{{getCostBuy}} DAI</p>
+          <p id="pool">{{currentReserve}} / {{reserveToken}} available</p>
+        </div>
       </div>
-    </div>
-    
-    <div id = "inc-dec">
-      <!-- <a class="btn-floating btn-large waves-effect waves-light blue" v-on:click="decreaseAmount"><i class="material-icons">-</i></a>
       
-      <a class="btn-floating btn-large waves-effect waves-light blue"  v-on:click="incAmount"><i class="material-icons">+</i></a> -->
+      <div id = "inc-dec">
+        <!-- <a class="btn-floating btn-large waves-effect waves-light blue" v-on:click="decreaseAmount"><i class="material-icons">-</i></a>
+        
+        <a class="btn-floating btn-large waves-effect waves-light blue"  v-on:click="incAmount"><i class="material-icons">+</i></a> -->
 
-      <!-- <p id="tokens-amount">{{amount}}</p> -->
-    </div>
-    
-
-    <button id="buttonBuy" v-on:click="showBuyModal">Buy</button>
-    
-    <button id="buttonSell" v-on:click="showSellModal">Sell</button>
-
-    <div v-if="isModal" class="modal">
-      <div class="modal-background" v-on:click="closeModal">
-
+        <!-- <p id="tokens-amount">{{amount}}</p> -->
       </div>
-      <div id="modal">
       
-        <div id="token-in-modal">
-          <div>
-            <p id="token-name">Test Token</p>
-            <p id="token-symbol">$TTL</p>
-            <p id = "balance">You have: {{getTTLBalance}} TTL</p>
+
+      <button id="buttonBuy" v-on:click="showBuyModal">Buy</button>
+      
+      <div v-if="isEnoughBalance">
+        <button id="buttonSell" v-on:click="showSellModal">Sell</button>
+      </div>
+      <div v-else>
+        <button id="button-disabled-main">Sell</button>
+      </div>
+
+      <div v-if="isModal" class="modal">
+        <div class="modal-background" v-on:click="closeModal">
+
+        </div>
+        <div id="modal">
+        
+          <div id="token-in-modal">
+            <div>
+              <p id="token-name">Test Token</p>
+              <p id="token-symbol">$TTL</p>
+              <p id = "balance">You have: {{getTTLBalance}} TTL</p>
+            </div>
+
+            <div>
+              <div v-if="isBuyModal">
+                <p id="price">{{getCostBuy}} DAI</p>
+              </div>
+              <div v-else>
+                <p id="price">{{getCostSell}} DAI</p>
+              </div>
+              <p id="pool">{{currentReserve}} / {{reserveToken}} available</p>
+            
+            </div>
+            
           </div>
 
-          <div>
-            <div v-if="isBuyModal">
-              <p id="price">{{getCostBuy}} $</p>
+          
+          <div v-if="isBuyModal">
+            <div class="input-group">
+                <input type="button" value="-" class="button-minus" data-field="quantity" v-on:click="decreaseAmount">
+                <input type="number" max="" v-model="amount" name="quantity" class="quantity-field" disabled>
+                <input type="button" value="+" class="button-plus" data-field="quantity" v-on:click="incAmount">
             </div>
+            <div v-if="isBuying">
+              <button id="button-modal"><PulseLoader/></button>
+            </div>
+            <div v-else-if="isDaiApproved">
+              
+              <button id="button-modal" v-on:click="buyTokens">Buy</button>
+            </div>
+
+            <div v-else-if="isApproving">
+              <button id="button-modal"><PulseLoader/></button>
+              <button id="button-disabled">Buy</button>
+            </div>
+            
             <div v-else>
-              <p id="price">{{getCostSell}} $</p>
+              <button id="button-modal" v-on:click="approveDai">Approve</button>
+              <button id="button-disabled">Buy</button>
             </div>
-            <p id="pool">{{currentReserve}} / {{reserveToken}} available</p>
-          
           </div>
-        </div>
 
+          <div v-else-if="isSellModal">
+            <div class="input-group">
+                <input type="button" value="-" class="button-minus" data-field="quantity" v-on:click="decreaseAmount">
+                <input type="number" max="" v-model="amount" name="quantity" class="quantity-field" disabled>
+                <input type="button" value="+" class="button-plus" data-field="quantity" v-on:click="incAmountSelling">
+            </div>
+            <div v-if="isSelling">
+              <button id="button-modal"><PulseLoader/></button>
+            </div>
+            <div v-else-if="isTokenApproved">
+              
+              <button id="button-modal" v-on:click = "sellTokens">Sell</button>
+            </div>
+            <div v-else-if="isApproving">
+              <button id="button-modal"><PulseLoader/></button>
+              <button id="button-disabled">Sell</button>
+            </div>
+            
+            <div v-else>
+              <button id="button-modal" v-on:click="approveTestToken">Approve</button>
+              <button id="button-disabled">Sell</button>
+            </div>
+          </div>
+          
+        </div>
         
-        <div v-if="isBuyModal">
-          
-          <div v-if="isDaiApproved">
-            <div class="input-group">
-              <input type="button" value="-" class="button-minus" data-field="quantity" v-on:click="decreaseAmount">
-              <input type="number" max="" v-model="amount" name="quantity" class="quantity-field" disabled>
-              <input type="button" value="+" class="button-plus" data-field="quantity" v-on:click="incAmount">
-            </div>
-            <button id="button-modal" v-on:click="buyTokens">Buy</button>
-          </div>
-          <div v-else>
-            <button id="button-modal" v-on:click="approveDai">Approve</button>
-            <button id="button-disabled">Buy</button>
-          </div>
-        </div>
-        <div v-else-if="isSellModal">
-          
-          <div v-if="isTokenApproved">
-            <div class="input-group">
-              <input type="button" value="-" class="button-minus" data-field="quantity" v-on:click="decreaseAmount">
-              <input type="number" max="" v-model="amount" name="quantity" class="quantity-field" disabled>
-              <input type="button" value="+" class="button-plus" data-field="quantity" v-on:click="incAmountSelling">
-            </div>
-            <button id="button-modal" v-on:click = "sellTokens">Sell</button>
-          </div>
-          <div v-else>
-            <button id="button-modal" v-on:click="approveTestToken">Approve</button>
-            <button id="button-disabled">Sell</button>
-          </div>
-        </div>
         
       </div>
-      
-      
     </div>
+    
 
 
 
@@ -117,13 +144,13 @@ import {ethers} from 'ethers'
 import TestSwap from './TestSwap.json'
 import ERC20 from './ERC20.json'
 //import ModalBuy from './components/ModalBuy.vue'
-//import PulseLoader from '@/components/PulseLoader.vue';
+import PulseLoader from '@/components/PulseLoader.vue';
 //import TestToken from './TestToken.json'
 
 export default {
   name: 'App',
   components: {
-    //PulseLoader,
+    PulseLoader,
     //ModalBuy
     
   },
@@ -144,9 +171,18 @@ export default {
       {
         this.isOwner = false
       }
-      
-      window.location.reload();
+    
+      window.location.reload()
     });
+    // if(window.ethereum)
+    // {
+    //   window.ethereum.on('chainChanged ', (chainID) => {
+    //   console.log(chainID)
+    //   window.location.reload()
+      
+    // });
+    // }
+    
   },
   data()
   {
@@ -158,6 +194,11 @@ export default {
       isSellModal:false,
       isDaiApproved: false,
       isTokenApproved: false,
+      isBuying: false,
+      isSelling: false,
+      isApproving: false,
+      chainID: '',
+      rightChainID: '',
       account: '',
       ownerAccount: '0x209f495b808fff06bd1e63a64243ad7b4be3d55e',
       reserveToken: 0,
@@ -175,19 +216,17 @@ export default {
   },
   computed:
   {
+    
     getCostBuy: function()
     {
       if(this.amount == 0) return ''
       let newTokenReserve = Number(this.currentReserve) - Number(this.amount)
       
-      console.log(this.currentReserve)
-      console.log(this.amount)
-      console.log(this.invariant)
-      console.log(newTokenReserve)
+      
       let newDAIReserve = Number(this.invariant) / newTokenReserve
-      console.log(newDAIReserve)
+      
       let cost = newDAIReserve - Number(this.reserveDAI)  
-      console.log(cost)
+      
       return cost.toString()
       
     },
@@ -196,14 +235,10 @@ export default {
       if(this.amount == 0) return ''
       let newTokenReserve = Number(this.currentReserve) + Number(this.amount)
       
-      console.log(this.currentReserve)
-      console.log(this.amount)
-      console.log(this.invariant)
-      console.log(newTokenReserve)
       let newDAIReserve = Number(this.invariant) / newTokenReserve
-      console.log(newDAIReserve)
+      
       let cost = Number(this.reserveDAI) - newDAIReserve  
-      console.log(cost)
+      
       return cost.toString()
 
     },
@@ -218,17 +253,30 @@ export default {
     getTTLBalance()
     {
       return parseInt(this.balanceTTL).toString()
+    },
+    isEnoughBalance()
+    {
+      if(parseInt(this.getTTLBalance) != 0)
+      {
+        return true
+      }
+      else return false
     }
     
   }
   
   ,
   created: async function () {
-    
+
+    const provider = new ethers.providers.Web3Provider(window.ethereum)
     let accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
     let account = accounts[0]
     this.account = account
-    
+
+    // const providerChainID = (await provider.getNetwork()).chainID
+
+    // this.rightChainID = providerChainID === this.chainID
+
     if(this.account == this.ownerAccount)
     {
       this.isOwner = true
@@ -237,7 +285,7 @@ export default {
     {
       this.isOwner = false;
     }
-    const provider = new ethers.providers.Web3Provider(window.ethereum)
+    
 
     let address = '0x7ED49bB36f915d327301B4CD4Cb90DAAf20d1B7F'
     let addressTestToken = '0x556b2a9CbAF23F36AbA28E3a92439c8F0568bb6F'
@@ -290,9 +338,11 @@ export default {
       
       let a = await testTokenContract.connect(provider.getSigner()).approve(addressOfTestSwap, ethers.utils.parseUnits(this.maxInt256, 18));
       console.log(a)
+      this.isApproving = true
       let tx = await a.wait()
       console.log(tx)
       this.isTokenApproved = true
+      this.isApproving = false
     },
     async approveDai()
     {
@@ -303,8 +353,10 @@ export default {
       
       let a = await daiContract.connect(provider.getSigner()).approve(addressOfTestSwap, ethers.utils.parseUnits(this.maxInt256, 18));
       console.log(a)
+      this.isApproving = true
       let tx = await a.wait()
       console.log(tx)
+      this.isApproving = false
       this.isDaiApproved = true
     },
     async sellTokens()
@@ -330,10 +382,12 @@ export default {
         this.account,
         _amount
         )
+        this.isSelling = true
         let tx = await res.wait()
         console.log(tx)
         this.updateBalances()
         this.updateReservesAfterSell(tokensSold)
+        this.isSelling = false
       }
       else{
         this.flag = true;
@@ -361,10 +415,12 @@ export default {
         this.account,
         _amount
         )
+        this.isBuying = true
         let tx = await res.wait()
         console.log(tx)
         this.updateBalances()
         this.updateReserves(tokensBought)
+        this.isBuying = false
       }
       else{
         this.flag = true;
@@ -425,7 +481,7 @@ export default {
       else{
         this.swap = true
       }
-      console.log(this.swap)
+      
     },
     showBuyModal() {
       this.isSellModal = false;
@@ -584,6 +640,9 @@ input::-webkit-inner-spin-button {
   clear: both;
   margin: 15px 0;
   position: relative;
+  top: -60px;
+  left:100px;
+  
 }
 
 .input-group input[type='button'] {
@@ -691,7 +750,7 @@ input[type="number"] {
   position: relative;
   margin-left:auto;
   margin-right:auto;
-  margin-top:30px;
+  margin-top:-40px;
   background-color: #d89844;
   border: none;
   color: white;
@@ -719,5 +778,22 @@ position: relative;
   font-size: 16px;
   border-radius: 10px;
   width:200px;
+}
+#button-disabled-main{
+  margin-left:auto;
+  margin-right:auto;
+  position: relative;
+  top:40px;
+  background-color: #9e9e9d;
+  border: none;
+  color: white;
+  padding: 15px 32px;
+  text-align: center;
+  text-decoration: none;
+  display: block;
+  font-size: 16px;
+  border-radius: 10px;
+  width:350px;
+  
 }
 </style>
