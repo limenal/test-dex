@@ -5,7 +5,8 @@
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
-    "lint": "vue-cli-service lint"
+    "lint": "vue-cli-service lint",
+    "postinstall": "patch-package"
   },
   "dependencies": {
     "@openzeppelin/contracts": "^4.0.0",
@@ -14,13 +15,18 @@
     "bootstrap": "^5.0.0",
     "chai": "^4.3.4",
     "chai-as-promised": "^7.1.1",
+    "chart.js": "^2.9.4",
+    "chartjs-plugin-zoom": "^0.7.7",
     "core-js": "^3.6.5",
     "ethers": "^5.1.4",
     "file-system": "^2.2.2",
     "materialize-css": "^1.0.0-rc.2",
+    "patch-package": "^6.4.7",
     "truffle-hdwallet-provider": "^1.0.17",
     "uikit": "^3.6.21-dev.64816a7b2",
     "vue": "^2.6.11",
+    "vue-chartjs": "^3.5.1",
+    "vue-router": "^3.5.1",
     "vuikit": "^0.8.10"
   },
   "devDependencies": {

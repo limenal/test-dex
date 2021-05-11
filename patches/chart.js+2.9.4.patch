@@ -1,0 +1,29 @@
+diff --git a/node_modules/chart.js/dist/Chart.js b/node_modules/chart.js/dist/Chart.js
+index e9c53c3..5902bf9 100644
+--- a/node_modules/chart.js/dist/Chart.js
++++ b/node_modules/chart.js/dist/Chart.js
+@@ -4520,7 +4520,9 @@ var element_point = core_element.extend({
+ 			ctx.lineWidth = valueOrDefault$2(vm.borderWidth, globalDefaults.elements.point.borderWidth);
+ 			ctx.fillStyle = vm.backgroundColor || defaultColor;
+ 			helpers$1.canvas.drawPoint(ctx, pointStyle, radius, x, y, rotation);
++			return this._index
+ 		}
++		return null
+ 	}
+ });
+ 
+@@ -6114,8 +6116,13 @@ var controller_line = core_datasetController.extend({
+ 		}
+ 
+ 		// Draw the points
++		this.chart.visiblePoints=[]
+ 		for (; i < ilen; ++i) {
+-			points[i].draw(area);
++			//points[i].draw(area);
++			const point = points[i].draw(area)
++			if(point != null){
++				this.chart.visiblePoints.push(point);
++			}
+ 		}
+ 	},
+ 
