@@ -53,7 +53,7 @@
         maxCoeffZoom: 0,
         priceData: [],
         datasets: [],
-        
+        colors: [],
         index:0,
         xAxis: [],
         chartData: {},
@@ -136,14 +136,22 @@
         }
         this.priceData.push(priceData)
         console.log(this.priceData)
+        let colors = []
+         var dynamicColors = function() {
+            var r = Math.floor(Math.random() * 255);
+            var g = Math.floor(Math.random() * 255);
+            var b = Math.floor(Math.random() * 255);
+            return "rgb(" + r + "," + g + "," + b + "," + "0.2)";
+         };
+        colors.push(dynamicColors())
+        this.colors.push(colors)
         this.datasets.push({
               data: this.priceData[this.index],
               fill: true,
               label: 'Prices: Start Ratio ' + this.startRatio.toString() + ' End Ratio ' + this.endRatio.toString(),
-              backgroundColor: 'rgba(254, 18, 18, 0.2)',
-              
+              // backgroundColor: 'rgba(254, 18, 18, 0.2)',
+              backgroundColor: this.colors[this.index]
             })
-        
         this.chartData = {
           labels: this.xAxis,
           fill: false,
@@ -243,7 +251,7 @@
         }
         this.index = 0
         this.update()
-      }
+      },
       
     }
   }
