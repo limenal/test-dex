@@ -4,16 +4,42 @@
     <!-- <button v-on:click="fillData">Randomize</button> -->
     <input type="text" v-model="startRatio">
     <input type="text" v-model="endRatio">
-    <button v-on:click="compute"> UPDATE</button>
+    <div id="slider">
+      <range-slider
+    class="slider"
+    min="1"
+    max="10"
+    step="0.01"
+    v-model="startRatio">
+  </range-slider>
+  <p>Start Ratio: {{startRatio}}</p>
+    </div>
+     <div id="slider">
+       <range-slider
+        class="slider"
+        min="0"
+        max="1"
+        step="0.01"
+        v-model="endRatio">
+      </range-slider>
+      <p>End Ratio: {{endRatio}}</p>
+     </div>
+    <button v-on:click="compute" id="button"> Add graph</button>
+    <button v-on:click="deleteItems" id="button"> Delete all graphs</button>
   </div>
+  
 </template>
 
 <script>
   import Chart from '../components/Chart.vue'
+  import RangeSlider from 'vue-range-slider'
+// you probably need to import built-in style
+  import 'vue-range-slider/dist/vue-range-slider.css'
 
   export default {
     components: {
-      Chart
+      Chart,
+      RangeSlider
     },
     data () {
       return {
@@ -24,7 +50,11 @@
         endRatio: 0,
         tempRatio:0,
         tempAmount:0,
+        maxCoeffZoom: 0,
         priceData: [],
+        datasets: [],
+        
+        index:0,
         xAxis: [],
         chartData: {},
         options:{
@@ -62,11 +92,11 @@
       },
       setTemp()
       {
-        this.priceData = []
+        
         this.xAxis = []
         this.tempRatio = Number(this.startRatio)
         this.tempAmount = (Number(this.daiAmount)/Number(this.tempRatio))
-        this.tokensAmount = 50 //костыль
+        this.tokensAmount = 50 //fix this
         this.coefficient = this.getReductionCoefficient()
         
         
@@ -90,47 +120,44 @@
         this.update()
         this.setTemp()
 
-        let datasets = []
+        
+        let priceData = []
         console.log(this.tempAmount, this.tempRatio,this.coefficient, this.tokensAmount)
         for(let i = 0; i < 50;i++)
         {
           this.xAxis.push(i+1)
           let value = this.getValue()
           //console.log(value)
-          this.priceData.push(value)
+          priceData.push(value)
         }
-        
-        datasets.push({
-              data: this.priceData,
-              fill: false,
-              label: 'Data',
-              backgroundColor: '#f87979'
+        if(priceData[priceData.length-2]/priceData[priceData.length-3] >= this.maxCoeffZoom)
+        {
+          this.maxCoeffZoom = priceData[priceData.length-2]/priceData[priceData.length-3]
+        }
+        this.priceData.push(priceData)
+        console.log(this.priceData)
+        this.datasets.push({
+              data: this.priceData[this.index],
+              fill: true,
+              label: 'Prices: Start Ratio ' + this.startRatio.toString() + ' End Ratio ' + this.endRatio.toString(),
+              backgroundColor: 'rgba(254, 18, 18, 0.2)',
               
             })
         
         this.chartData = {
           labels: this.xAxis,
           fill: false,
-          datasets: datasets
+          datasets: this.datasets
         }
         
-        
+        this.index+=1
       },
       update()
       {
+        
         this.chartData = {
           labels: this.xAxis,
-          datasets: [
-            {
-              label: "Data",
-              data: this.priceData,
-              fill: false,
-              borderColor: '#0088cc',
-              borderWidth: 4,
-              type: 'scatter',
-              yAxisID: 'left-y-axis'
-            }
-            ]
+          datasets: this.datasets
         }
         this.options= 
         {
@@ -154,50 +181,68 @@
                   let maxValue = 0
                   let minValue = 9007199254740990
                   const obj = chart.chart.visiblePoints
-                  
                   for (var i = obj[0]; i < obj[obj.length - 1]; i++) {
-                    const point = parseFloat(chart.chart.data.datasets[0].data[i])
-                    if (point > maxValue) {
-                      maxValue = point
+                    for(var j = 0; j < chart.chart.data.datasets.length; j++)
+                    {
+                      const point = parseFloat(chart.chart.data.datasets[j].data[i])
+                    
+                      if (point > maxValue) {
+                        maxValue = point
+                      }
+                      if (point < minValue) {
+                        minValue = point
+                      }
                     }
-                    if (point < minValue) {
-                      minValue = point
-                    }
+                    
                   }
-                  
-                  chart.chart.setZoom(minValue * 0.6, maxValue * 1.5)
+
+                  chart.chart.setZoom(minValue * 0.6, maxValue * this.maxCoeffZoom)
                 }
 							},
 							zoom: {
 								enabled: true,
 								mode: 'x',
-                speed: 1,
-                threshold: 0,
-                sensitivity: 0,
+                
                 onZoomComplete: (chart) => 
                 {
                   let maxValue = 0
                   let minValue = 9007199254740990
                   const obj = chart.chart.visiblePoints
-                  console.log(chart.chart)
+                  
                   for (var i = obj[0]; i < obj[obj.length - 1]; i++) {
-                    const point = parseFloat(chart.chart.data.datasets[0].data[i])
+                    for(var j = 0; j < chart.chart.data.datasets.length; j++)
+                    {
+                      const point = parseFloat(chart.chart.data.datasets[j].data[i])
+                      
+                      if (point > maxValue) {
+                        maxValue = point
+                      }
+                      if (point < minValue) {
+                        minValue = point
+                      }
+                    }
                     
-                    if (point > maxValue) {
-                      maxValue = point
-                    }
-                    if (point < minValue) {
-                      minValue = point
-                    }
                   }
-
-                  chart.chart.setZoom(minValue * 0.6, maxValue * 1.5)
+                  
+                  chart.chart.setZoom(minValue * 0.6, maxValue * this.maxCoeffZoom)
                 }
               
 							}
 						}
 					}
         }
+      },
+      deleteItems()
+      {
+        
+        for(var i = 0; i < this.index; i++)
+        {
+          console.log(this.chartData.datasets)
+          this.chartData.datasets.pop()
+          
+        }
+        this.index = 0
+        this.update()
       }
       
     }
@@ -212,4 +257,26 @@
     margin-left:auto;
     margin-right: auto;
   }
+  #slider{
+    position: relative;
+    top:25px;
+  }
+  #button{
+    position: relative;
+    margin-top: 20px;
+  margin-left:auto;
+  margin-right:auto;
+  background-color: #e0a90f;
+  border: none;
+  color: white;
+  padding: 15px 20px;
+  text-align: center;
+  text-decoration: none;
+  display: block;
+  font-size: 16px;
+  border-radius: 10px;
+  top:25px;
+  width:200px;
+  cursor: pointer;
+}
 </style>

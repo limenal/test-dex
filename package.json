@@ -26,6 +26,7 @@
     "uikit": "^3.6.21-dev.64816a7b2",
     "vue": "^2.6.11",
     "vue-chartjs": "^3.5.1",
+    "vue-range-slider": "^0.6.0",
     "vue-router": "^3.5.1",
     "vuikit": "^0.8.10"
   },
