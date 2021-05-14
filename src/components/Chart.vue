@@ -12,11 +12,21 @@ export default {
     chartData: { type: Object },
     options: { type: Object }
   },
+  data()
+  {
+      return {
+      obj: 0,
+      i: 0
+    }
+  },
   mounted () {
     // this.chartData is created in the mixin.
     // If you want to pass options please create a local options object
+    
     this.addPlugin(zoom)
     this.renderChart(this.chartData, this.options)
+    
   }
+  
 }
 </script>

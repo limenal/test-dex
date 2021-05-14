@@ -1,9 +1,13 @@
 <template>
-  <div class="chart-container">
-    <Chart v-bind:chartData="chartData" v-bind:options="options" id="chart"/>
+  <div class="chart-container" >
+    <button v-on:click="setDefaultZoom" id = "reset-button">Reset Zoom</button>
+
+    <chart v-bind:chartData="chartData" v-bind:options="options" id="chart" ref="foo"/>
+
     <!-- <button v-on:click="fillData">Randomize</button> -->
     <input type="text" v-model="startRatio">
     <input type="text" v-model="endRatio">
+
     <div id="slider">
       <range-slider
     class="slider"
@@ -26,6 +30,7 @@
      </div>
     <button v-on:click="compute" id="button"> Add graph</button>
     <button v-on:click="deleteItems" id="button"> Delete all graphs</button>
+    
   </div>
   
 </template>
@@ -33,7 +38,6 @@
 <script>
   import Chart from '../components/Chart.vue'
   import RangeSlider from 'vue-range-slider'
-// you probably need to import built-in style
   import 'vue-range-slider/dist/vue-range-slider.css'
 
   export default {
@@ -43,11 +47,11 @@
     },
     data () {
       return {
-        tokensAmount: 50,
-        daiAmount: 200,
+        tokensAmount: 100,
+        daiAmount: 400,
         coefficient: 0,
-        startRatio:0,
-        endRatio: 0,
+        startRatio:1,
+        endRatio: 1,
         tempRatio:0,
         tempAmount:0,
         maxCoeffZoom: 0,
@@ -73,6 +77,7 @@
       }
     },
     created: function() {
+      this.compute()
       
     },
     
@@ -96,7 +101,7 @@
         this.xAxis = []
         this.tempRatio = Number(this.startRatio)
         this.tempAmount = (Number(this.daiAmount)/Number(this.tempRatio))
-        this.tokensAmount = 50 //fix this
+        this.tokensAmount = 100 //need to fix this
         this.coefficient = this.getReductionCoefficient()
         
         
@@ -123,7 +128,7 @@
         
         let priceData = []
         console.log(this.tempAmount, this.tempRatio,this.coefficient, this.tokensAmount)
-        for(let i = 0; i < 50;i++)
+        for(let i = 0; i < 100;i++)
         {
           this.xAxis.push(i+1)
           let value = this.getValue()
@@ -184,6 +189,7 @@
 							pan: {
 								enabled: true,
 								mode: 'x',
+                
                 onPanComplete: (chart) => 
                 {
                   let maxValue = 0
@@ -205,12 +211,15 @@
                   }
 
                   chart.chart.setZoom(minValue * 0.6, maxValue * this.maxCoeffZoom)
+
                 }
 							},
 							zoom: {
 								enabled: true,
 								mode: 'x',
-                
+                speed: 1,
+                threshold: 0,
+                sensitivity: 0,
                 onZoomComplete: (chart) => 
                 {
                   let maxValue = 0
@@ -231,7 +240,6 @@
                     }
                     
                   }
-                  
                   chart.chart.setZoom(minValue * 0.6, maxValue * this.maxCoeffZoom)
                 }
               
@@ -243,17 +251,28 @@
       deleteItems()
       {
         
-        for(var i = 0; i < this.index; i++)
+        for(var i = 0; i < this.index-1; i++)
         {
           console.log(this.chartData.datasets)
           this.chartData.datasets.pop()
+          this.priceData.pop()
           
         }
-        this.index = 0
+        this.index = 1
         this.update()
       },
+      setDefaultZoom()
+      {
+        this.$refs.foo._data._chart.resetZoom()        
+      }
       
-    }
+    },
+    // watch: { 
+    //   chartData (){
+    //     console.log(this.$data)
+    //     //this.$data._chart.update() 
+    //   } 
+    // }
   }
 </script>
 
@@ -272,19 +291,33 @@
   #button{
     position: relative;
     margin-top: 20px;
-  margin-left:auto;
-  margin-right:auto;
-  background-color: #e0a90f;
-  border: none;
-  color: white;
-  padding: 15px 20px;
-  text-align: center;
-  text-decoration: none;
-  display: block;
-  font-size: 16px;
-  border-radius: 10px;
-  top:25px;
-  width:200px;
-  cursor: pointer;
+    margin-left:auto;
+    margin-right:auto;
+    background-color: #e0a90f;
+    border: none;
+    color: white;
+    padding: 15px 20px;
+    text-align: center;
+    text-decoration: none;
+    display: block;
+    font-size: 16px;
+    border-radius: 10px;
+    top:25px;
+    width:200px;
+    cursor: pointer;
+}
+#reset-button{
+    position: relative;
+    background-color: #e0a90f;
+    border: none;
+    color: white;
+    padding: 15px 20px;
+    text-align: center;
+    text-decoration: none;
+    font-size: 16px;
+    border-radius: 10px;
+    top:-20px;
+    width:150px;
+    cursor: pointer; 
 }
 </style>
